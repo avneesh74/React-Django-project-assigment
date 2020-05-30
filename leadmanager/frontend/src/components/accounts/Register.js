@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { regsiter } from '../../actions/auth';
+import { createMessages } from '../../actions/messages'
 
 class Register extends Component {
 
@@ -12,7 +15,17 @@ class Register extends Component {
 
     onSubmit = (e) => {
         e.preventDefault()
-        console.log('submit')
+        const { username, email, password, password2 } = this.state;
+        if (password !== password2) {
+            this.props.createMessages({ passwordNotMatch: "Passwords do not match" });
+        } else {
+            const newUser = {
+                username,
+                email,
+                password,
+            }
+            this.props.regsiter(newUser)
+        }
     }
 
     onChange = (e) => {
@@ -20,6 +33,10 @@ class Register extends Component {
     }
 
     render() {
+
+        if (this.props.isAuthenticated) {
+            return <Redirect to="/" />
+        }
 
         const { username, email, password, password2 } = this.state
 
@@ -82,4 +99,8 @@ class Register extends Component {
     }
 }
 
-export default Register
+const mapSTateToProps = state => ({
+    isAuthenticated: state.auth.isAuthenticated
+})
+
+export default connect(mapSTateToProps, { regsiter, createMessages })(Register)
